@@ -24,7 +24,7 @@ A single AI session doing everything wears every hat at once: it implements, the
 - **Five roles, mechanically bounded** — each agent's toolset matches its mandate (see [The roles](#the-roles)); definition stays in your session because it's a conversation.
 - **`/squad:status`** — read-only view of the work queue: specs and bug briefs by state, staleness flags, and one concrete "do this next".
 - **Parallel verification** — Tester and Auditor review the change simultaneously; findings loop back to the Developer for up to two fix cycles before escalating to you.
-- **Security hook** — `kubectl`, `.env` files, and `git reset --hard` are blocked at the tool-call level in every session where the plugin is enabled.
+- **Security hook** — `kubectl`, `.env` files, and work-destroying git commands (`git reset --hard`, `git clean -f`, `git checkout -- .`, `git restore .`, `git push --force`, …) are blocked at the tool-call level in every session where the plugin is enabled, with a test suite pinning exactly what is allowed and denied.
 - **Reusable playbooks** — semantic architecture (state/lifecycle/reuse changes), breaking changes (contracts, schemas, formats), and a smallest-sufficient-validation policy, preloaded into the roles that need them and invocable standalone.
 - **Roles work standalone** — use the auditor for a one-off review or the tester to hunt flaky tests, without running a pipeline.
 
@@ -129,7 +129,9 @@ You can talk to the orchestrator in any language; everything the team produces �
 
 - `kubectl` / direct cluster access
 - reading or writing `.env` files (`.env.example`, `.sample`, `.template`, `.test` are allowed)
-- `git reset --hard`
+- git commands that throw away uncommitted or shared work: `git reset --hard`, `git clean -f`, `git checkout -- .` / `git checkout .`, `git restore .`, `git stash clear` / `drop`, and `git push --force` (`--force-with-lease` is allowed)
+
+It is a guardrail for a **cooperative** agent, not a sandbox against an adversary: it matches command invocations — including inside `$(…)`, behind `sudo`, and via full paths — and covers the same-intent siblings of each banned command, but it does not chase deliberate obfuscation. That is why the prose rules below and your own permission `deny` rules are the outer layers. Exactly what the hook allows and denies is pinned by `hooks/test_guard.py`.
 
 Prompt-injection handling (instructions found in fetched data are ignored and reported), secret redaction, and ask-don't-touch rules for production systems are prose rules in every agent. Plugins cannot ship permission rules, so for defense in depth you can also add deny rules to a project's `.claude/settings.json`:
 
@@ -168,10 +170,12 @@ claude plugin update squad@claude-squad   # restart the session to apply
 
 ## Customizing
 
-Every role is a plain Markdown file in `agents/` — edit the prompts, tighten the tool lists, or add roles (a `security` specialist, a `data` engineer). Skills live in `skills/`, the pipeline choreography in `skills/run/SKILL.md`, and the hook in `hooks/guard.py`. Validate before committing:
+Every role is a plain Markdown file in `agents/` — edit the prompts, tighten the tool lists, or add roles (a `security` specialist, a `data` engineer). Skills live in `skills/` (each pipeline is its own `skills/<name>/SKILL.md` — `build`, `fix`, `refactor`, …), and the hook in `hooks/guard.py`. Validate before committing:
 
 ```bash
-claude plugin validate .
+claude plugin validate .          # official plugin schema check
+python3 scripts/validate_plugin.py   # structural checks (frontmatter, skill refs, manifests)
+python3 hooks/test_guard.py          # the security guard's allow/deny contract
 ```
 
 ## Roadmap
@@ -183,7 +187,14 @@ claude plugin validate .
 
 ## Contributing
 
-Issues and PRs are welcome. Keep role boundaries intact (no write tools for the auditor, no shell for the documentator), run `claude plugin validate .` before submitting, and bump the version on any behavior change.
+Issues and PRs are welcome. Keep role boundaries intact (no write tools for the auditor, no shell for the documentator), and bump the version on any behavior change. Before submitting, run the checks CI runs on every PR:
+
+```bash
+python3 -m py_compile hooks/guard.py
+python3 hooks/test_guard.py          # guard allow/deny contract
+python3 scripts/validate_plugin.py   # plugin structure
+claude plugin validate .             # official schema check
+```
 
 ## License
 

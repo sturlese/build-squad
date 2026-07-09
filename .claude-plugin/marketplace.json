@@ -1,6 +1,6 @@
 {
   "name": "claude-squad",
-  "description": "A six-role engineering team for Claude Code: specialized subagents + skills with an orchestrated pipeline, human gates, and a security hook.",
+  "description": "A five-role engineering team for Claude Code: specialized subagents + skills with orchestrated pipelines, human gates, and a mechanical security hook.",
   "owner": {
     "name": "Marc Sturlese"
   },
