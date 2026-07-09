@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    name: Guard tests + structural validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Compile the security hook
+        run: python3 -m py_compile hooks/guard.py scripts/validate_plugin.py
+      - name: Guard allow/deny contract
+        run: python3 hooks/test_guard.py
+      - name: Plugin structure
+        run: python3 scripts/validate_plugin.py
+
+  plugin-validate:
+    name: claude plugin validate (best effort)
+    runs-on: ubuntu-latest
+    # Non-gating: the official CLI may not be installable in every CI environment.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code || echo "CLI unavailable; skipping"
+      - name: Validate plugin schema
+        run: claude plugin validate . || echo "claude plugin validate unavailable; skipping"

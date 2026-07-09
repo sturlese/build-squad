@@ -14,7 +14,9 @@ Conversations produce files; pipelines consume them. `/squad:define` ends in `sp
 
 ## 3. Boundaries are enforced by tooling, not prose
 
-A rule the model cannot break beats a rule it promises to follow. The auditor cannot modify anything — it has no write tools, not a "please don't" paragraph. The documentator cannot run builds or tests — it has no shell. Dangerous operations (`kubectl`, `.env` access, `git reset --hard`) are blocked by a `PreToolUse` hook that exits before the tool runs. Prose rules remain for what tooling can't express (prompt-injection handling, secret redaction), but every boundary that can be mechanical is mechanical.
+A rule the model cannot break beats a rule it promises to follow. The auditor cannot modify anything — it has no write tools, not a "please don't" paragraph. The documentator cannot run builds or tests — it has no shell. Dangerous operations (`kubectl`, `.env` access, and work-destroying git commands — `git reset --hard`, `git clean -f`, `git checkout -- .`, `git restore .`, `git push --force`) are blocked by a `PreToolUse` hook that exits before the tool runs. Prose rules remain for what tooling can't express (prompt-injection handling, secret redaction), but every boundary that can be mechanical is mechanical.
+
+The hook is honest about its scope: a guardrail for a cooperative agent, not a sandbox against an adversary. It covers the same-intent *siblings* of each banned command (so the guarantee matches the prose — banning `git reset --hard` while `git clean -f` sailed through would be a lie) and matches invocations wherever they run — inside `$(…)`, behind `sudo`, via full paths — but it does not try to defeat deliberate obfuscation. `hooks/test_guard.py` pins exactly what is allowed and denied, so widening the policy means adding a denied case, never quietly changing behavior. One deliberate non-abstraction: the shared core of the "Security and conduct" block is duplicated verbatim in every role (a few roles add one role-specific line) rather than factored into a shared skill. A security rule must be *guaranteed* in the agent's context, and an inlined block is guaranteed where a lazily-loaded skill is not — the small duplication buys certainty, and `scripts/validate_plugin.py` asserts the core is present in every role so the copies cannot silently drift.
 
 ## 4. One tester, four disciplines
 
@@ -44,4 +46,4 @@ The playbooks (`semantic-architecture`, `breaking-change`, `final-validation`) a
 | Roles | Subagent definitions with tool restrictions and preloaded skills | `agents/*.md` |
 | Pipelines | Choreographies the orchestrator (your session) follows | `skills/{define,build,bug,fix,refactor,review,ship,onboard,status}` |
 | Playbooks | Auto-triggered judgment, preloaded into roles | `skills/{semantic-architecture,breaking-change,final-validation}` |
-| Guard | Mechanical security policy (PreToolUse hook) | `hooks/guard.py` |
+| Guard | Mechanical security policy (PreToolUse hook), with its allow/deny contract | `hooks/guard.py`, `hooks/test_guard.py` |
