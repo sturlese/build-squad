@@ -8,7 +8,7 @@
     {
       "name": "squad",
       "source": "./",
-      "description": "Five-role engineering team (UX, Developer, Tester, Auditor, Documentator) for Claude Code — bounded subagents plus a conversational spec mode, a security hook, and orchestrated pipelines: define, build, bug, fix, refactor, review, ship, onboard, status."
+      "description": "Five-role engineering team (UX, Developer, Tester, Auditor, Documentator) for Claude Code — bounded subagents plus a conversational spec mode, a security hook, and orchestrated pipelines: define, build, fix, refactor, review."
     }
   ]
 }

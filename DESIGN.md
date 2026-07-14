@@ -6,7 +6,7 @@ claude-squad started as a question: if you run several AI terminals side by side
 
 A subagent is the right primitive for work you hand off and get back: it has its own context, its own tools, and returns a structured report. It is the wrong primitive for a conversation: every round would relay through the orchestrator — slow, token-doubled, and lossy — and subagents never see the images you paste.
 
-That is why product definition is deliberately NOT a subagent. It is a conversation, so `/squad:define` runs it in your own session: the session interviews you directly, challenges vague answers, and closes a spec. The same applies to bug intake (`/squad:bug` clarifies with you before any agent runs). Delivery, verification, and documentation are delegated work — those are the five subagents.
+That is why product definition is deliberately NOT a subagent. It is a conversation, so `/squad:define` runs it in your own session: the session interviews you directly, challenges vague answers, and closes a spec. The same applies to informal bug intake: `/squad:fix` clarifies with you in the main session when the report is loose or a screenshot, before any agent runs. Delivery, verification, and documentation are delegated work — those are the five subagents.
 
 ## 2. Artifacts couple the modes
 
@@ -18,15 +18,14 @@ A rule the model cannot break beats a rule it promises to follow. The auditor ca
 
 The hook is honest about its scope: a guardrail for a cooperative agent, not a sandbox against an adversary. It covers the same-intent *siblings* of each banned command (so the guarantee matches the prose — banning `git reset --hard` while `git clean -f` sailed through would be a lie) and matches invocations wherever they run — inside `$(…)`, behind `sudo`, via full paths — but it does not try to defeat deliberate obfuscation. `hooks/test_guard.py` pins exactly what is allowed and denied, so widening the policy means adding a denied case, never quietly changing behavior. One deliberate non-abstraction: the shared core of the "Security and conduct" block is duplicated verbatim in every role (a few roles add one role-specific line) rather than factored into a shared skill. A security rule must be *guaranteed* in the agent's context, and an inlined block is guaranteed where a lazily-loaded skill is not — the small duplication buys certainty, and `scripts/validate_plugin.py` asserts the core is present in every role so the copies cannot silently drift.
 
-## 4. One tester, four disciplines
+## 4. One tester, three disciplines
 
 Each pipeline redefines the tester's relationship to tests, because "what tests mean" depends on what you are doing:
 
 | Pipeline | The tests are… |
 |---|---|
 | `build` | written for the spec's new acceptance criteria |
-| `fix` | the gate: a failing test must exist BEFORE any production code changes |
-| `bug` | the receipt: a regression test written after the fix, that would have failed before it |
+| `fix` | the gate: a failing test must exist BEFORE the fix — or, when up-front reproduction is genuinely impossible, the receipt written right after |
 | `refactor` | the frozen invariant: identical results before and after — wanting to change one IS the finding |
 
 The role stays constant (protect the contract, never touch production code); the discipline rotates. The tester's core principle holds everywhere: a failing test is a risk signal, never something to "adapt" to the implementation.
@@ -46,6 +45,6 @@ The playbooks (`semantic-architecture`, `breaking-change`, `final-validation`) a
 | Piece | What it is | Where |
 |---|---|---|
 | Roles | Subagent definitions with tool restrictions and preloaded skills | `agents/*.md` |
-| Pipelines | Choreographies the orchestrator (your session) follows | `skills/{define,build,bug,fix,refactor,review,ship,onboard,status}` |
+| Pipelines | Choreographies the orchestrator (your session) follows | `skills/{define,build,fix,refactor,review}` |
 | Playbooks | Auto-triggered judgment, preloaded into roles | `skills/{semantic-architecture,breaking-change,final-validation}` |
 | Guard | Mechanical security policy (PreToolUse hook), with its allow/deny contract | `hooks/guard.py`, `hooks/test_guard.py` |
