@@ -1,6 +1,6 @@
 # claude-squad
 
-> A five-role engineering team for Claude Code — UX, Developer, Tester, Auditor, and Documentator as coordinated subagents — with a conversational spec mode, human quality gates, a mechanical security policy, and pipelines that define, build, fix, refactor, review, and ship.
+> A five-role engineering team for Claude Code — UX, Developer, Tester, Auditor, and Documentator as coordinated subagents — with a conversational spec mode, human quality gates, a mechanical security policy, and pipelines that define, build, fix, refactor, and review.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-d97757)](https://code.claude.com/docs/en/plugins)
@@ -15,14 +15,10 @@ A single AI session doing everything wears every hat at once: it implements, the
 
 - **`/squad:define <idea>`** — conversational spec mode: the session interviews you, round by round, until the definition closes — then writes a spec file with verifiable acceptance criteria.
 - **`/squad:build <spec>`** — the delivery pipeline from a closed spec: UX → developer → tester ∥ auditor → documentator, with the spec's acceptance criteria as the tester's checklist.
-- **`/squad:bug <report>`** — interactive bug intake: paste a few sentences or a screenshot, answer only the questions that actually block the fix, then developer → tester (regression test) → documentator run the chain.
-- **`/squad:fix <bug>`** — strict reproduce-first bug fixing: the tester captures the bug as a failing test before the developer may touch code, and the fix ends with a sibling scan for the same defect elsewhere.
+- **`/squad:fix <bug>`** — reproduce-first bug fixing: the tester captures the bug as a failing test before the developer may touch code; it clarifies interactively when the report is informal or a screenshot, and ends with a sibling scan for the same defect elsewhere.
 - **`/squad:refactor <target>`** — behavior-preserving restructuring: existing tests become the frozen invariant (identical results before and after), and the auditor judges whether the new structure is actually better.
-- **`/squad:ship`** — release pipeline: mechanical pre-flight (tests, migrations, secrets scan), changelog and version bump, documented deploy steps, smoke checks — nothing irreversible before your sign-off.
 - **`/squad:review <target>`** — read-only team review of a diff, branch, or PR: parallel security/contract/UX lenses, merged into a severity-ranked verdict.
-- **`/squad:onboard`** — bootstrap the project maps (per-directory `index.md`, system overview, verified commands) that make every role sharper.
 - **Five roles, mechanically bounded** — each agent's toolset matches its mandate (see [The roles](#the-roles)); definition stays in your session because it's a conversation.
-- **`/squad:status`** — read-only view of the work queue: specs and bug briefs by state, staleness flags, and one concrete "do this next".
 - **Parallel verification** — Tester and Auditor review the change simultaneously; findings loop back to the Developer for up to two fix cycles before escalating to you.
 - **Security hook** — `kubectl`, `.env` files, and work-destroying git commands (`git reset --hard`, `git clean -f`, `git checkout -- .`, `git restore .`, `git push --force`, …) are blocked at the tool-call level in every session where the plugin is enabled, with a test suite pinning exactly what is allowed and denied.
 - **Reusable playbooks** — semantic architecture (state/lifecycle/reuse changes), breaking changes (contracts, schemas, formats), and a smallest-sufficient-validation policy, preloaded into the roles that need them and invocable standalone.
@@ -37,7 +33,7 @@ A single AI session doing everything wears every hat at once: it implements, the
 
 Definition is a conversation; delivery is a pipeline. `/squad:define` runs in your main session — the interview happens directly, no subagent relay — and ends when the spec closes with verifiable acceptance criteria and explicit out-of-scope. `/squad:build` takes that file as the contract: it refuses specs without verifiable criteria, the tester verifies each criterion one by one, and scope never changes mid-build — if implementation proves the spec wrong, the pipeline stops and sends you back to `define`. The delivery report covers each criterion pass/fail, files changed, test targets run with results, the audit verdict, and docs updated.
 
-The dedicated pipelines (`bug`, `fix`, `refactor`, `review`, `ship`, `onboard`) follow the same philosophy — role boundaries, human gates, structured reports — each with a choreography suited to its job. For small, well-bounded tasks, `define` closes in a round or two and `build` does the rest.
+The dedicated pipelines (`fix`, `refactor`, `review`) follow the same philosophy — role boundaries, human gates, structured reports — each with a choreography suited to its job. For small, well-bounded tasks, `define` closes in a round or two and `build` does the rest.
 
 ## Requirements
 
@@ -86,15 +82,13 @@ Specs live in git: iterate one today, build it tomorrow — and the acceptance c
 **Dedicated pipelines** for the other common jobs:
 
 ```
-/squad:bug the export button does nothing (screenshot attached)
 /squad:fix the CSV export drops rows containing commas
+/squad:fix the export button does nothing (screenshot attached)
 /squad:refactor extract the pricing logic scattered across checkout
 /squad:review feature/csv-export
-/squad:ship
-/squad:onboard
 ```
 
-`bug` investigates first, asks you only what blocks the fix, and adds the regression test after; `fix` is the strict variant that refuses to patch anything until the bug exists as a failing test; `refactor` freezes the tests as the invariant while structure improves; `review` changes nothing and returns a ranked verdict; `ship` touches nothing irreversible until you sign off on the pre-flight; `onboard` writes the maps that make every later run better.
+`fix` reproduces first — it refuses to patch anything until the bug exists as a failing test — and clarifies interactively in the main session when the report is informal or a screenshot; `refactor` freezes the tests as the invariant while structure improves; `review` changes nothing and returns a ranked verdict.
 
 **Individual roles** — mention any agent directly:
 
@@ -145,16 +139,16 @@ Prompt-injection handling (instructions found in fetched data are ignored and re
 
 ## Project conventions (optional)
 
-The agents read whatever context a project offers — `CLAUDE.md`, `README.md`, architecture docs. Projects that additionally expose a system-overview command (like a `make info` target listing services, entry points, and build/test/lint commands) and per-directory `index.md` maps (what the module is for, what to reuse, what to avoid) get richer, more precise behavior from every role. Nothing is required — the documentator role can bootstrap those maps for you.
+The agents read whatever context a project offers — `CLAUDE.md`, `README.md`, architecture docs. Projects that additionally expose a system-overview command (like a `make info` target listing services, entry points, and build/test/lint commands) and per-directory `index.md` maps (what the module is for, what to reuse, what to avoid) get richer, more precise behavior from every role. Nothing is required — the documentator role can bootstrap those maps for you: ask it directly, e.g. `@agent-squad:documentator bootstrap per-directory index.md maps and a system overview` (pull in the auditor to flag security-sensitive areas).
 
 ## Composing with loops
 
 Every pipeline has a clear stop condition and structured output, which makes them natural targets for Claude Code's loop primitives (`/loop`, `/goal`, `/schedule`):
 
 ```
-/loop 2h /squad:status                # keep a live view of the backlog while you work
 /goal every acceptance criterion in specs/payments.md passes — run /squad:build, stop after 5 tries
-/schedule every Monday at 9:00: run /squad:status and flag anything stale
+/loop 1h /squad:review feature/csv-export     # re-review the branch each hour as it grows
+/schedule every Monday at 9:00: /squad:review the changes merged to main last week
 ```
 
 Unattended loops stall on permission prompts — configure your allowlists first, and keep the security hook's deny rules as the floor.
