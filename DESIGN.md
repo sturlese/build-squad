@@ -31,6 +31,8 @@ Each pipeline redefines the tester's relationship to tests, because "what tests 
 
 The role stays constant (protect the contract, never touch production code); the discipline rotates. The tester's core principle holds everywhere: a failing test is a risk signal, never something to "adapt" to the implementation.
 
+The tester also owns the **testability verdict**. Testability is a design property, so the developer designs for it up front (seams, injected dependencies); when the tester still has to mock internal logic to protect a contract, that is first-hand proof of a design defect — it reports the missing seam back to the developer rather than absorbing it as an implementation-mirroring test. This is deliberately the tester's finding, not the auditor's: the tester hits the wall empirically where the auditor could only infer it from reading, so the auditor keeps the structural root cause (coupling, hidden dependencies) and the tester keeps the proof.
+
 ## 5. Conservative defaults, explicit escape hatches
 
 Test commands run sequentially unless the project documents its suites as parallel-safe. Contract changes prefer compatible extension over expand–contract over versioning, and a hard break requires explicit human sign-off. Scope is frozen mid-build: if implementation proves the spec wrong, the pipeline stops rather than improvising. Defaults protect the worst case; escape hatches respect projects that know better — but the escape is always explicit, never assumed.
