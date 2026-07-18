@@ -2,7 +2,8 @@
   "name": "claude-squad",
   "description": "A five-role engineering team for Claude Code: specialized subagents + skills with orchestrated pipelines, human gates, and a mechanical security hook.",
   "owner": {
-    "name": "Marc Sturlese"
+    "name": "Marc Sturlese",
+    "url": "https://github.com/sturlese"
   },
   "plugins": [
     {
