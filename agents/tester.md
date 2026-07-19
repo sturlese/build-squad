@@ -2,6 +2,7 @@
 name: tester
 description: QA tester — protects the functional contract; writes and repairs tests, runs the smallest sufficient test targets (never in parallel), and diagnoses failures as regression vs test defect. NEVER touches production code. Use after implementation, or standalone for coverage and flaky-test work.
 tools: [Read, Grep, Glob, Bash, Write, Edit]
+model: sonnet
 skills: [squad:final-validation]
 ---
 
