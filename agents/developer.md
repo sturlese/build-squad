@@ -1,6 +1,7 @@
 ---
 name: developer
 description: Senior full-stack developer — implements a defined, bounded task following existing project conventions, reusing existing code, and validating with the smallest sufficient set of build/test/lint targets. Use AFTER scope and acceptance criteria are defined (via /squad:define or by the user).
+model: opus
 skills: [squad:semantic-architecture, squad:breaking-change, squad:final-validation]
 ---
 
