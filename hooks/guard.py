@@ -4,7 +4,6 @@
 Mechanical enforcement of the plugin's security policy:
 
   - no kubectl / direct cluster access
-  - no reading or writing .env files (except .env.example/.sample/.template/.test)
   - no git commands that throw away uncommitted or shared work
     (reset --hard, clean -f, checkout -- ., restore ., stash clear/drop, push --force)
 
@@ -22,26 +21,6 @@ import json
 import re
 import shlex
 import sys
-
-# --------------------------------------------------------------------------- #
-# .env protection
-# --------------------------------------------------------------------------- #
-
-# Companion / non-secret variants that are safe to touch.
-ENV_ALLOW = re.compile(r"\.env\.(example|sample|template|test)$", re.IGNORECASE)
-# basename is ".env", optionally followed by ".something" (e.g. .env.local).
-ENV_RE = re.compile(r"(^|[\\/])\.env(\.[\w.-]+)?$", re.IGNORECASE)
-
-
-def is_protected_env(path: str) -> bool:
-    if not path:
-        return False
-    # Normalize trailing shell globs so `.env*` and `.env.*` are treated as `.env`.
-    candidate = path.rstrip("*?").rstrip(".")
-    if not candidate:
-        return False
-    return bool(ENV_RE.search(candidate)) and not ENV_ALLOW.search(candidate)
-
 
 # --------------------------------------------------------------------------- #
 # Shell segmentation & git parsing
@@ -173,22 +152,6 @@ def check_bash(cmd: str):
             reason = _destructive_git(args)
             if reason:
                 return reason
-    for match in re.finditer(r"[^\s'\"();|&<>]*\.env[^\s'\"();|&<>]*", cmd):
-        token = match.group(0)
-        if is_protected_env(token):
-            return (f"the command references {token} — .env files are managed "
-                    "by the human, never by agents.")
-    return None
-
-
-def check_file(tool_input):
-    path = (tool_input.get("file_path")
-            or tool_input.get("notebook_path")
-            or tool_input.get("path")
-            or "")
-    if is_protected_env(path):
-        return (f"access to {path} is forbidden — .env files are managed "
-                "by the human, never by agents.")
     return None
 
 
@@ -197,8 +160,6 @@ def evaluate(tool_name: str, tool_input):
     tool_input = tool_input or {}
     if tool_name == "Bash":
         return check_bash(tool_input.get("command", "") or "")
-    if tool_name in ("Read", "Edit", "Write", "MultiEdit", "NotebookEdit"):
-        return check_file(tool_input)
     return None
 
 

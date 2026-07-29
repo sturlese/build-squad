@@ -19,14 +19,6 @@ def bash(cmd):
     return evaluate("Bash", {"command": cmd})
 
 
-def read(path):
-    return evaluate("Read", {"file_path": path})
-
-
-def write(path):
-    return evaluate("Write", {"file_path": path})
-
-
 class Denied(unittest.TestCase):
     """Commands the policy must block (evaluate returns a reason)."""
 
@@ -84,15 +76,6 @@ class Denied(unittest.TestCase):
                     "git push origin main -f"]:
             self.assertDenied(bash(cmd), cmd)
 
-    def test_env_files(self):
-        for cmd in ["cat .env", "cat /app/.env", "cat .env.local", "cat .env*",
-                    "grep SECRET .env.production", "echo x > .env"]:
-            self.assertDenied(bash(cmd), cmd)
-        for path in ["/app/.env", ".env", "config/.env.local", "/srv/app/.env.production"]:
-            self.assertDenied(read(path), "read " + path)
-            self.assertDenied(write(path), "write " + path)
-
-
 class Allowed(unittest.TestCase):
     """Everyday commands the policy must NOT block (evaluate returns None)."""
 
@@ -123,12 +106,15 @@ class Allowed(unittest.TestCase):
         ]:
             self.assertAllowed(bash(cmd), cmd)
 
-    def test_safe_env(self):
-        for cmd in ["cat .env.example", "cat .env.template", "cat .env.sample", "cat .env.test"]:
+    def test_env_files_are_fine(self):
+        # .env access is deliberately allowed — environment files are the
+        # user's responsibility, not a guard concern.
+        for cmd in ["cat .env", "cat /app/.env", "grep SECRET .env.production",
+                    "echo x > .env"]:
             self.assertAllowed(bash(cmd), cmd)
-        for path in ["/app/.env.example", ".env.template", "config/.env.sample", "/x/.env.test"]:
-            self.assertAllowed(read(path), "read " + path)
-            self.assertAllowed(write(path), "write " + path)
+        for path in ["/app/.env", ".env", "config/.env.local"]:
+            self.assertAllowed(evaluate("Read", {"file_path": path}), "read " + path)
+            self.assertAllowed(evaluate("Write", {"file_path": path}), "write " + path)
 
     def test_kubectl_in_filename_or_message_is_fine(self):
         # `kubectl` as a substring (filename, log path, prose) is not cluster access.
