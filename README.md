@@ -20,7 +20,7 @@ A single AI session doing everything wears every hat at once: it implements, the
 - **`/squad:review <target>`** — read-only team review of a diff, branch, or PR: parallel security/contract/UX lenses, merged into a severity-ranked verdict.
 - **Five roles, mechanically bounded** — each agent's toolset matches its mandate (see [The roles](#the-roles)); definition stays in your session because it's a conversation.
 - **Parallel verification** — Tester and Auditor review the change simultaneously; findings loop back to the Developer for up to two fix cycles before escalating to you.
-- **Security hook** — `kubectl`, `.env` files, and work-destroying git commands (`git reset --hard`, `git clean -f`, `git checkout -- .`, `git restore .`, `git push --force`, …) are blocked at the tool-call level in every session where the plugin is enabled, with a test suite pinning exactly what is allowed and denied.
+- **Security hook** — `kubectl` and work-destroying git commands (`git reset --hard`, `git clean -f`, `git checkout -- .`, `git restore .`, `git push --force`, …) are blocked at the tool-call level in every session where the plugin is enabled, with a test suite pinning exactly what is allowed and denied.
 - **Reusable playbooks** — semantic architecture (state/lifecycle/reuse changes), breaking changes (contracts, schemas, formats), and a smallest-sufficient-validation policy, preloaded into the roles that need them and invocable standalone.
 - **Roles work standalone** — use the auditor for a one-off review or the tester to hunt flaky tests, without running a pipeline.
 
@@ -122,7 +122,6 @@ You can talk to the orchestrator in any language; everything the team produces �
 `hooks/guard.py` runs as a `PreToolUse` hook in every session where the plugin is enabled (including all subagents) and blocks:
 
 - `kubectl` / direct cluster access
-- reading or writing `.env` files (`.env.example`, `.sample`, `.template`, `.test` are allowed)
 - git commands that throw away uncommitted or shared work: `git reset --hard`, `git clean -f`, `git checkout -- .` / `git checkout .`, `git restore .`, `git stash clear` / `drop`, and `git push --force` (`--force-with-lease` is allowed)
 
 It is a guardrail for a **cooperative** agent, not a sandbox against an adversary: it matches command invocations — including inside `$(…)`, behind `sudo`, and via full paths — and covers the same-intent siblings of each banned command, but it does not chase deliberate obfuscation. That is why the prose rules below and your own permission `deny` rules are the outer layers. Exactly what the hook allows and denies is pinned by `hooks/test_guard.py`.
@@ -132,7 +131,7 @@ Prompt-injection handling (instructions found in fetched data are ignored and re
 ```json
 {
   "permissions": {
-    "deny": ["Read(**/.env)", "Read(**/.env.*)", "Bash(kubectl *)"]
+    "deny": ["Bash(kubectl *)"]
   }
 }
 ```
