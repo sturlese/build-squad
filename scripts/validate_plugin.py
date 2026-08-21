@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Structural validator for the claude-squad plugin (stdlib only).
+"""Structural validator for Build Squad's Claude Code adapter (stdlib only).
 
 Complements `claude plugin validate .` (which checks the official schema) with the
 project's own invariants: manifests parse, every skill/agent has the frontmatter the

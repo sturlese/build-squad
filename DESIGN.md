@@ -1,16 +1,16 @@
 # Design principles
 
-claude-squad started as a question: if you run several AI terminals side by side, each with a different role prompt — a developer, a tester, an auditor — the quality jump from role separation is real, but a human ends up working as the message bus between them. Automating that bus naively (one agent that "does everything") throws away exactly what made the separation work. These are the principles that kept it.
+Build Squad started as a question: if you run several AI terminals side by side, each with a different role prompt — a developer, a tester, an auditor — the quality jump from role separation is real, but a human ends up working as the message bus between them. Automating that bus naively (one agent that "does everything") throws away exactly what made the separation work. These are the principles that kept it.
 
 ## 1. Agents are for delegated work; skills are for interaction modes
 
 A subagent is the right primitive for work you hand off and get back: it has its own context, its own tools, and returns a structured report. It is the wrong primitive for a conversation: every round would relay through the orchestrator — slow, token-doubled, and lossy — and subagents never see the images you paste.
 
-That is why product definition is deliberately NOT a subagent. It is a conversation, so `/squad:define` runs it in your own session: the session interviews you directly, challenges vague answers, and closes a spec. The same applies to informal bug intake: `/squad:fix` clarifies with you in the main session when the report is loose or a screenshot, before any agent runs. Delivery, verification, and documentation are delegated work — those are the five subagents.
+That is why product definition is deliberately NOT a subagent. It is a conversation, so the define skill runs it in your own session: the session interviews you directly, challenges vague answers, and closes a spec. The same applies to informal bug intake: the fix skill clarifies with you in the main session when the report is loose or a screenshot, before any agent runs. Delivery, verification, and documentation are delegated work — those are the five subagents.
 
 ## 2. Artifacts couple the modes
 
-Conversations produce files; pipelines consume them. `/squad:define` ends in `specs/<slug>.md`; `/squad:build` starts from it. The file is resumable across sessions, diffable, versioned in git — and it doubles as the verification contract: the acceptance criteria negotiated in the chat are exactly what the tester verifies at the end, criterion by criterion. Coupling through artifacts instead of conversation state is what lets you define today and build next week.
+Conversations produce files; pipelines consume them. The define skill ends in `specs/<slug>.md`; the build skill starts from it. The file is resumable across sessions, diffable, versioned in git — and it doubles as the verification contract: the acceptance criteria negotiated in the chat are exactly what the tester verifies at the end, criterion by criterion. Coupling through artifacts instead of conversation state is what lets you define today and build next week.
 
 ## 3. Boundaries are enforced by tooling, not prose
 
@@ -44,7 +44,7 @@ The playbooks (`semantic-architecture`, `breaking-change`, `final-validation`) a
 
 | Piece | What it is | Where |
 |---|---|---|
-| Roles | Subagent definitions with tool restrictions and preloaded skills | `agents/*.md` |
-| Pipelines | Choreographies the orchestrator (your session) follows | `skills/{define,build,fix,refactor,review}` |
-| Playbooks | Auto-triggered judgment, preloaded into roles | `skills/{semantic-architecture,breaking-change,final-validation}` |
-| Guard | Mechanical security policy (PreToolUse hook), with its allow/deny contract | `hooks/guard.py`, `hooks/test_guard.py` |
+| Claude roles | Subagent definitions with tool restrictions and preloaded skills | `agents/*.md` |
+| Codex roles | Installable TOML profiles for Codex custom agents | `plugins/build-squad/agents/*.toml` |
+| Pipelines | Choreographies the orchestrator (your session) follows | `skills/` and `plugins/build-squad/skills/` |
+| Guard | Mechanical security policy (PreToolUse hook), with its allow/deny contract | `hooks/` and `plugins/build-squad/hooks/` |

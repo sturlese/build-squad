@@ -1,6 +1,6 @@
 {
-  "name": "claude-squad",
-  "description": "A five-role engineering team for Claude Code: specialized subagents + skills with orchestrated pipelines, human gates, and a mechanical security hook.",
+  "name": "build-squad",
+  "description": "Build Squad's Claude Code adapter: five specialized roles, disciplined pipelines, human gates, and a mechanical security hook.",
   "owner": {
     "name": "Marc Sturlese",
     "url": "https://github.com/sturlese"
@@ -9,7 +9,7 @@
     {
       "name": "squad",
       "source": "./",
-      "description": "Five-role engineering team (UX, Developer, Tester, Auditor, Documentator) for Claude Code — bounded subagents plus a conversational spec mode, a security hook, and orchestrated pipelines: define, build, fix, refactor, review."
+      "description": "Build Squad's Claude Code adapter: five specialized roles, conversational specs, a security hook, and delivery pipelines."
     }
   ]
 }

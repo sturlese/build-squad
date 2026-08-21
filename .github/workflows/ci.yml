@@ -7,19 +7,23 @@ on:
 
 jobs:
   validate:
-    name: Guard tests + structural validation
+    name: Claude and Codex guard tests + structural validation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
-      - name: Compile the security hook
-        run: python3 -m py_compile hooks/guard.py scripts/validate_plugin.py
-      - name: Guard allow/deny contract
+      - name: Compile guards and validators
+        run: python3 -m py_compile hooks/guard.py scripts/validate_plugin.py plugins/build-squad/hooks/guard.py plugins/build-squad/scripts/validate.py plugins/build-squad/scripts/install_agents.py
+      - name: Claude guard allow/deny contract
         run: python3 hooks/test_guard.py
-      - name: Plugin structure
+      - name: Codex guard allow/deny contract
+        run: python3 plugins/build-squad/hooks/test_guard.py
+      - name: Claude plugin structure
         run: python3 scripts/validate_plugin.py
+      - name: Codex plugin structure
+        run: python3 plugins/build-squad/scripts/validate.py
 
   plugin-validate:
     name: claude plugin validate (best effort)
