@@ -1,8 +1,8 @@
 # Privacy Policy
 
-_Last updated: 2026-07-19_
+_Last updated: 2026-08-21_
 
-`claude-squad` (the `squad` plugin) does not collect, store, or transmit any personal
+`Build Squad` (the Claude Code `squad` plugin and Codex `build-squad` plugin) does not collect, store, or transmit any personal
 data or usage data.
 
 ## What the plugin does with your data
@@ -22,14 +22,14 @@ open a network connection, and the plugin has no third-party dependencies.
 
 ## Your project's contents
 
-Your code and files are read and written by Claude Code's own tools, under whatever
-permissions you have granted in your Claude Code configuration. The plugin adds
-agent instructions and tool restrictions on top of that; it does not add any new
-destination for your data. Files that agents create — specification documents,
-tests, documentation — are written to your own working directory and nowhere else.
+Your code and files are read and written by Claude Code or Codex under the permissions
+you grant to that host. The plugins add agent instructions and tool restrictions on top
+of that; they do not add any new destination for your data. Files that agents create —
+specification documents, tests, documentation — are written to your own working directory
+and nowhere else.
 
-Handling of the data you send to Claude is governed by Anthropic's privacy policy,
-not by this plugin: https://www.anthropic.com/legal/privacy
+Handling of data sent to Claude Code or Codex is governed by the respective host's
+privacy policy, not by this plugin.
 
 ## Third parties
 
@@ -38,9 +38,9 @@ The plugin sends no data to any third party, because it sends no data anywhere.
 ## Changes
 
 Any change to this policy will be published in this file in the plugin's public
-repository: https://github.com/sturlese/claude-squad
+repository: https://github.com/sturlese/build-squad
 
 ## Contact
 
 Questions about this policy can be raised as an issue at
-https://github.com/sturlese/claude-squad/issues
+https://github.com/sturlese/build-squad/issues

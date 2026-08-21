@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""claude-squad security guard (PreToolUse hook).
+"""Build Squad's Claude Code security guard (PreToolUse hook).
 
 Mechanical enforcement of the plugin's security policy:
 
@@ -171,7 +171,7 @@ def main() -> None:
 
     reason = evaluate(data.get("tool_name", "") or "", data.get("tool_input") or {})
     if reason:
-        print(f"Blocked by claude-squad security policy: {reason}", file=sys.stderr)
+        print(f"Blocked by Build Squad security policy: {reason}", file=sys.stderr)
         sys.exit(2)
     sys.exit(0)
 

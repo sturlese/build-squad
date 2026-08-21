@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- A self-contained Codex plugin with the complete Build Squad skill suite, a
+  Codex safety hook, and installable custom-agent profiles.
+- A repository-local Codex marketplace and CI validation for both supported
+  platforms.
+
+### Changed
+
+- Renamed the project from Claude Squad to Build Squad while retaining the
+  Claude Code `squad` plugin identifier for installation compatibility.
+
 ## [2.1.0] - 2026-08-21
 
 ### Added

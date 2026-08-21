@@ -1,0 +1,27 @@
+{
+  "name": "build-squad",
+  "version": "1.0.0",
+  "description": "Five-role engineering squad for Codex: disciplined delivery pipelines, specialized agents, and a safety guard.",
+  "author": {
+    "name": "Marc Sturlese",
+    "url": "https://github.com/sturlese"
+  },
+  "homepage": "https://github.com/sturlese/build-squad",
+  "repository": "https://github.com/sturlese/build-squad",
+  "license": "MIT",
+  "keywords": ["subagents", "orchestration", "review", "testing", "security"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Build Squad",
+    "shortDescription": "A five-role engineering squad for Codex.",
+    "longDescription": "Build Squad brings disciplined definition, build, fix, refactor, and review pipelines to Codex, with specialized agents and a safety guard.",
+    "developerName": "Marc Sturlese",
+    "category": "Developer tools",
+    "capabilities": ["Interactive", "Write"],
+    "defaultPrompt": [
+      "Define a feature with Build Squad.",
+      "Build this closed specification with Build Squad.",
+      "Review my current branch with Build Squad."
+    ]
+  }
+}
